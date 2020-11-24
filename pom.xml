@@ -13,6 +13,7 @@
 
     <properties>
         <author>Samuel-Anton Jansen</author>
+        <url>https://github.com/sampie777/ESP32TallyLightConfigurer</url>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.4.10</kotlin.version>
