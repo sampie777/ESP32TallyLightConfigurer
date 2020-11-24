@@ -1,7 +1,6 @@
 package nl.sajansen.tallylightconfigurer.gui
 
 import nl.sajansen.tallylightconfigurer.serial.ESP32TallyLightDevice
-import nl.sajansen.tallylightconfigurer.serial.SerialDevice
 import java.awt.BorderLayout
 import java.awt.GridLayout
 import java.util.logging.Logger
@@ -21,6 +20,8 @@ class ConfigurationPanel : JPanel() {
 
     init {
         createGui()
+
+        download()
     }
 
     private fun createGui() {
@@ -54,15 +55,36 @@ class ConfigurationPanel : JPanel() {
     private fun download() {
         setStatus("Loading SSID...")
 
-        ESP32TallyLightDevice.getWifiSsid { ssid ->
-            ssidTextField.text = ssid
-            setStatus("Loading password...")
+        ESP32TallyLightDevice.getWifiSsid(::handleGetWifiSsidResponse)
+    }
 
-            ESP32TallyLightDevice.getWifiPassword { password ->
-                passwordTextField.text = password
-                setStatus("Done")
-            }
+    private fun handleGetWifiSsidResponse(ssid: String): Boolean {
+        if (ssid == "Booting..." || ssid == "Ready.") {
+            logger.info("Can't get SSID: Device still booting. Retrying...")
+            Thread.sleep(1500)
+            download()
+            return true
         }
+
+        if (!ssid.startsWith("${ESP32TallyLightDevice.WIFI_SSID_GET}:")) {
+            logger.info("Wrong SSID response: $ssid")
+            return false
+        }
+
+        ssidTextField.text = ssid.substringAfter("${ESP32TallyLightDevice.WIFI_SSID_GET}:")
+        setStatus("Loading password...")
+
+        ESP32TallyLightDevice.getWifiPassword { password ->
+            if (!password.startsWith("${ESP32TallyLightDevice.WIFI_PASSWORD_GET}:")) {
+                logger.info("Wrong password response: $password")
+                return@getWifiPassword false
+            }
+
+            passwordTextField.text = password.substringAfter("${ESP32TallyLightDevice.WIFI_PASSWORD_GET}:")
+            setStatus("Done")
+            return@getWifiPassword true
+        }
+        return true
     }
 
     private fun upload() {

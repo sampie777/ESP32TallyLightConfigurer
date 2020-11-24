@@ -9,7 +9,7 @@
     <version>0.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>tallylightconfigurer</name>
+    <name>ESP32 Tally Light Configurer</name>
 
     <properties>
         <author>Samuel-Anton Jansen</author>
