@@ -8,6 +8,7 @@ object ESP32TallyLightDevice : SerialDevice() {
 
     override val serialListener = SerialListener(this)
 
+    const val RESTART = "rst"
     const val BOOT_INTO_CONFIG = "cnf"
     const val WIFI_SSID_SET = "wss"
     const val WIFI_SSID_GET = "wsg"
@@ -16,8 +17,15 @@ object ESP32TallyLightDevice : SerialDevice() {
 
     private val callbacks = arrayListOf<(value: String) -> Boolean>()
 
+    override fun connect(deviceName: String, baudRate: Int): Boolean {
+        val result = super.connect(deviceName, baudRate)
+        Thread.sleep(100)
+        send(RESTART)
+        return result
+    }
+
     override fun processSerialInput(messages: List<String>) {
-        messages.forEach { 
+        messages.forEach {
             if (it.startsWith("[")) return@forEach
 
             if (it == "Booting...") {
@@ -26,7 +34,7 @@ object ESP32TallyLightDevice : SerialDevice() {
             }
 
             if (callbacks.size == 0) return@forEach
-            
+
             if (callbacks.first().invoke(it)) {
                 callbacks.removeAt(0)
             }

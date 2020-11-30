@@ -10,6 +10,7 @@ import kotlin.system.exitProcess
 
 private val logger = Logger.getLogger("Application")
 
+@Suppress("UNUSED_PARAMETER")
 fun main(args: Array<String>) {
     logger.info("Starting application ${ApplicationInfo.artifactId}:${ApplicationInfo.version}")
     logger.info("Executing JAR directory: " + getCurrentJarDirectory(ApplicationInfo).absolutePath)
