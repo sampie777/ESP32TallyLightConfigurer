@@ -10,3 +10,4 @@ releases/
 snapshots/
 *.xcf
 tmp/
+dependency-reduced-pom.xml
